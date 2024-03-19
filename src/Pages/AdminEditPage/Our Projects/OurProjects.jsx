@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import OurProjectComponent from "./OurProjectsComponents";
-const OurProjects = () => {
+import DataContext from "../../../Context/FetchData/DataContext";
+
+import { useDraggable } from "react-use-draggable-scroll";
+
+const OurProjects = ({ openEditProjectModal, closeEditProjectModal }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [deviceType, setDeviceType] = useState("");
+
+  const context = useContext(DataContext);
+  const { projectData, projectDataRetrival } = context;
 
   useEffect(() => {
     const handleResize = () => {
@@ -19,37 +23,41 @@ const OurProjects = () => {
       }
     };
 
-    // Initial check on mount
     handleResize();
-
-    // Event listener for window resize
     window.addEventListener("resize", handleResize);
-
-    // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  const settings = {
-    slidesToShow: deviceType === "PC" ? 4 : deviceType === "Tablet" ? 2 : 1,
-    infinite: true,
-    pauseOnHover: true,
-    autoplay: false,
-    slidesToScroll: 1,
-    centerMode: true,
-    centerPadding: 0,
-    beforeChange: (current, next) => setCurrentSlide(next),
-  };
+  useEffect(() => {
+    projectDataRetrival();
+  }, []);
+
+  const ref = useRef(null); // Initialize with null
+  const { events } = useDraggable(ref);
+
   return (
     <div>
-      <div className="  ">
-        <Slider {...settings} className="">
-          {[...Array(9)].map((_, index) => (
-            <OurProjectComponent key={index} className="hover:scale-110" />
+      
+        <div
+          className="mx-8 flex space-x-3 overflow-x-scroll"
+          style={{ scrollbarWidth: "none", "-ms-overflow-style": "none" }}
+          ref={ref}
+          {...events}
+        >
+          {projectData.map((project, index) => (
+            <div key={index} className="inline-block mr-6">
+              <OurProjectComponent
+                className="hover:scale-110"
+                data={project}
+                openEditProjectModal={openEditProjectModal}
+                closeEditProjectModal={closeEditProjectModal}
+              />
+            </div>
           ))}
-        </Slider>
-      </div>
+        </div>
+      
     </div>
   );
 };

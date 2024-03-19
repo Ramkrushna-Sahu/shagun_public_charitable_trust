@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { useGesture } from "react-use-gesture";
 import CertificateComponents from "./CertificateComponents";
-const Certificate = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+import DataContext from "../../../Context/FetchData/DataContext";
+import { useDraggable } from "react-use-draggable-scroll";
+const Certificate = ({
+  openEditCertificateModal,
+  closeEditCertificateModal,
+}) => {
   const [deviceType, setDeviceType] = useState("");
+  const context = useContext(DataContext);
+  const { certificateData, certificateDataRetrival } = context;
 
   useEffect(() => {
     const handleResize = () => {
@@ -31,25 +35,29 @@ const Certificate = () => {
     };
   }, []);
 
-  const settings = {
-    slidesToShow: deviceType === "PC" ? 4 : deviceType === "Tablet" ? 2 : 1,
-    infinite: true,
-    pauseOnHover: true,
-    autoplay: false,
-    slidesToScroll: 1,
-    centerMode: true,
-    centerPadding: 0,
-    beforeChange: (current, next) => setCurrentSlide(next),
-  };
+  useEffect(() => {
+    certificateDataRetrival();
+  }, []);
+
+  const ref = useRef(); // We will use React useRef hook to reference the wrapping div:
+  const { events } = useDraggable(ref);
   return (
-    <div>
-      <div className="  ">
-        <Slider {...settings} className="">
-          {[...Array(9)].map((_, index) => (
-            <CertificateComponents key={index} className="hover:scale-110" />
-          ))}
-        </Slider>
-      </div>
+    <div
+      className="mx-8 flex space-x-3 overflow-x-scroll "
+      style={{ scrollbarWidth: "none", "-ms-overflow-style": "none" }}
+      {...events}
+      ref={ref}
+    >
+      {certificateData.map((data, index) => (
+        <div key={index} className="inline-block mr-2">
+          <CertificateComponents
+            className="hover:scale-110"
+            openEditCertificateModal={openEditCertificateModal}
+            closeEditCertificateModal={closeEditCertificateModal}
+            data={data}
+          />
+        </div>
+      ))}
     </div>
   );
 };

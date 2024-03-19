@@ -1,5 +1,5 @@
 import React from "react";
-
+import qrImg from '../../../Assets/Images/qrimg.jpg'
 const Donate = () => {
   return (
     <div className="bg-black py-16">
@@ -11,7 +11,7 @@ const Donate = () => {
         <div className="left text-white text-xs text-center">
           G Pay Account
           <div className="scanner w-96 h-96 bg-gray-300 flex justify-center items-center mt-2">
-            QR CODE
+            <img src={qrImg} alt="" />
           </div>
           <div className="details ">
             <div className="my-1">

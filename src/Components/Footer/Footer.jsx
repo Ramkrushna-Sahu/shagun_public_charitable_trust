@@ -33,7 +33,7 @@ function Footer() {
             <a href="#" className="hover:text-orange-500">
               Charity
             </a>
-            <a href="#" className="hover:text-orange-500">
+            <a href="/trusteeMember" className="hover:text-orange-500">
               Our Team
             </a>
             <a href="/futureprojects" className="hover:text-orange-500">
@@ -50,7 +50,7 @@ function Footer() {
             <a href="./donation" className="hover:text-orange-500">
               Donate Now
             </a>
-        <a href="/trusteeRegister" className="hover:text-orange-500">
+            <a href="/trusteeRegister" className="hover:text-orange-500">
               Become a volunteer
             </a>
             <a href="#" className="hover:text-orange-500">

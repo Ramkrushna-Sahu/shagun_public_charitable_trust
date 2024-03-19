@@ -1,17 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Modal from "../../../../Components/Modal/Modal";
 import { IoClose } from "react-icons/io5";
-import { ref, uploadBytes } from 'firebase/storage'
-import { doc, collection, setDoc } from "firebase/firestore";
-import { storage, db } from '../../../../Components/Firebase/Firebase'
-const EditOurProject = ({ openModal, closeModal, isModalOpen }) => {
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { doc, collection, setDoc, updateDoc,  } from "firebase/firestore";
+import { storage, db } from "../../../../Components/Firebase/Firebase";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import DataContext from "../../../../Context/FetchData/DataContext";
+import DeleteDataContext from "../../../../Context/DeleteData/DeleteDataContext";
+import LoadContext from "../../../../Context/LoadingAnimation/LoadingContext";
+const EditOurProjects = ({
+  openModal,
+  closeModal,
+  isModalOpen,
+  ProjectData,
+}) => {
   const [image, setImage] = useState(null);
   const [file, setFile] = useState();
   const [data, setData] = useState({
     title: "",
     description: "",
   });
+  const [imageError, setImageError] = useState();
+  const [titleError, setTitleError] = useState();
+  const [descriptionError, setDescriptionError] = useState();
 
+  const {deleteProject}= useContext(DeleteDataContext)
+  const { projectData, projectDataRetrival } = useContext(DataContext);
+  const {isloding, openSetLoading, closeSetLoading} = useContext(LoadContext)
   const handleChange = (e) => {
     try {
       const { name, value } = e.target;
@@ -19,47 +34,115 @@ const EditOurProject = ({ openModal, closeModal, isModalOpen }) => {
         ...prevData,
         [name]: value,
       }));
+      validate();
     } catch (error) {
       alert(error);
     }
   };
 
   const handleImageUpload = (event) => {
-    let temp = event.target.files[0]
-        setFile(event.target.files[0]);
-        if (temp) {
-            //   console.log(temp)
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImage(reader.result);
-            };
-            reader.readAsDataURL(temp);
-        }
+    let temp = event.target.files[0];
+    setFile(event.target.files[0]);
+    if (temp) {
+      //   console.log(temp)
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result);
+      };
+      reader.readAsDataURL(temp);
+      setImageError("");
+    }
   };
 
   const clearImage = () => {
     setImage(null);
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-        try {
-            // console.log(data)
-            const banner = ref(storage, 'projects/' + data.title)
-            await uploadBytes(banner, file)
-
-            const certificateDocRef = doc(collection(db, "projects"), data.title);
-            await setDoc(certificateDocRef, {
-                title: data.title,
-                description: data.description
+  const setdata = () => {
+    setData({
+      title: ProjectData?.title,
+      description: ProjectData?.description,
+      option: ProjectData?.option,
+      date: ProjectData?.date,
+    });
+    setImage(ProjectData?.imageUrl);
+  };
+  useEffect(() => {
+    setdata();
+  }, []);
+  const validate = () => {
+    let valid = true;
+    if (!image) {
+      setImageError("Upload an Image");
+      valid = false;
+    } else {
+      setImageError("");
+    }
+    if (!data.title.trim()) {
+      setTitleError("Enter the title");
+      valid = false;
+    } else {
+      setTitleError("");
+    }
+    if (!data.description.trim()) {
+      setDescriptionError("Enter the description");
+      valid = false;
+    } else {
+      setDescriptionError("");
+    }
+    if (valid) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+  const handleUpdate = async (e) => {
+    const projectDocRef = doc(collection(db, "projects"), ProjectData.id);
+    e.preventDefault();
+    try {
+      if (validate()) {
+        closeModal();
+        openSetLoading();
+        if (ProjectData.imageUrl !== image && image) {
+          const banner = ref(storage, "projects/" + data.title);
+          await deleteObject(banner).then((res) => {
+         
+          });
+          await uploadBytes(banner, file).then(async (snapshot) => {
+            await getDownloadURL(snapshot.ref).then((downloadUrl) => {
+              // console.log(downloadUrl);
+              data.imageUrl = downloadUrl;
             });
+          });
 
-        } catch (error) {
-            alert(error)
+          await updateDoc(projectDocRef, {
+            imageUrl: data.imageUrl,
+          });
         }
-        closeModal()
+
+        if (
+          ProjectData.title !== data.title ||
+          ProjectData.description !== data.description
+        ) {
+          await updateDoc(projectDocRef, {
+            title: data.title,
+            description: data.description
+          });
+        }
+        await projectDataRetrival();
+        closeSetLoading();
+      }
+    } catch (error) {
+      alert(error);
+    }
   };
 
+  const handleDelete = async() => {
+    closeModal();
+    openSetLoading();
+    deleteProject(ProjectData)
+    await projectDataRetrival()
+    closeSetLoading();
+  };
   return (
     <>
       <div>
@@ -67,59 +150,66 @@ const EditOurProject = ({ openModal, closeModal, isModalOpen }) => {
           <form className="">
             <div className="flex md:flex-row flex-col justify-center items-center">
               <div className="flex items-center justify-center xl:w-[45%] w-full md:my-0 my-4 px-5">
-                <label
-                  htmlFor="dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-56 border-2 border-gray-400 border-dashed rounded-lg cursor-pointer bg-slate-200  hover:bg-slate-100 transition-all ease-in-out duration-300 relative hover:border-gray-500 "
-                >
-                  {image ? (
-                    <>
-                      <img
-                        src={image}
-                        alt="Uploaded"
-                        className="h-full  object-cover py-2"
-                      />
-                      <div className=" absolute -top-2 -right-2 bg-slate-300 border-2 border-gray-400 p-1 rounded-full text-xl">
-                        <IoClose
-                          className="text-red-700 "
-                          onClick={clearImage}
+                <div className="flex flex-col justify-center items-center w-full">
+                  <label
+                    htmlFor="dropzone-file"
+                    className="flex flex-col items-center justify-center w-full h-56 border-2 border-gray-400 border-dashed rounded-lg cursor-pointer bg-slate-200  hover:bg-slate-100 transition-all ease-in-out duration-300 relative hover:border-gray-500 "
+                  >
+                    {image ? (
+                      <>
+                        <img
+                          src={image}
+                          alt="Uploaded"
+                          className="h-full  object-cover py-2"
                         />
+                        <div className=" absolute -top-2 -right-2 bg-slate-300 border-2 border-gray-400 p-1 rounded-full text-xl">
+                          <IoClose
+                            className="text-red-700 "
+                            onClick={clearImage}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg
+                          className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 20 16"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                          />
+                        </svg>
+                        <p className="mb-2 xl:text-sm text-xs text-gray-500 dark:text-gray-400 text-center">
+                          <span className="font-semibold ">
+                            Click to upload
+                          </span>{" "}
+                          <br />
+                          or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                          SVG, PNG, JPG or GIF
+                        </p>
                       </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <svg
-                        className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 16"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                        />
-                      </svg>
-                      <p className="mb-2 xl:text-sm text-xs text-gray-500 dark:text-gray-400 text-center">
-                        <span className="font-semibold ">Click to upload</span>{" "}
-                        <br />
-                        or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                        SVG, PNG, JPG or GIF
-                      </p>
-                    </div>
+                    )}
+                    <input
+                      id="dropzone-file"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                  {imageError && (
+                    <p className="text-red-600 text-sm">{imageError}</p>
                   )}
-                  <input
-                    id="dropzone-file"
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                </label>
+                </div>
               </div>
 
               <div className="flex flex-col w-full my-5 md:mx-5 mx-0">
@@ -142,6 +232,9 @@ const EditOurProject = ({ openModal, closeModal, isModalOpen }) => {
                     Title
                   </label>
                 </div>
+                {titleError && (
+                  <p className="text-red-600 text-sm mx-1">{titleError}</p>
+                )}
                 <div className="relative mt-4">
                   <textarea
                     id="description"
@@ -162,17 +255,25 @@ const EditOurProject = ({ openModal, closeModal, isModalOpen }) => {
                     Description
                   </label>
                 </div>
+                {descriptionError && (
+                  <p className="text-sm text-red-600 mx-1">
+                    {descriptionError}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex flex-row md:justify-end justify-between items-end">
-              <button className="mx-3 border-double border-[3px] border-red-500 hover:border-slate-200 hover:bg-red-500 hover:text-white px-4 py-2  text-black rounded-md">
+              <button
+                className="mx-3 border-double border-[3px] border-red-500 hover:border-slate-200 hover:bg-red-600 hover:text-white px-4 py-2  text-black rounded-md"
+                onClick={handleDelete}
+              >
                 Delete
               </button>
               <button
-                className="mx-3 bg-orange-500 px-4 py-[11px] hover:bg-orange-600 text-white rounded-md"
-                onClick={handleSubmit}
+                className="mx-3 bg-orange-500 px-5 py-[11px] hover:bg-orange-600 text-white rounded-md"
+                onClick={handleUpdate}
               >
-                Submit
+                Update
               </button>
             </div>
           </form>
@@ -182,4 +283,4 @@ const EditOurProject = ({ openModal, closeModal, isModalOpen }) => {
   );
 };
 
-export default EditOurProject;
+export default EditOurProjects;

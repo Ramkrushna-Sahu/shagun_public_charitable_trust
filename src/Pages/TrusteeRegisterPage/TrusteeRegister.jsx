@@ -42,6 +42,7 @@ function TrusteeRegister() {
     }
 
     if (valid) {
+      alert('Trustee Register not supported yet')
       // createUserWithEmailAndPassword(auth, email, password)
       //   .then(async (userCredential) => {
       //     updateProfile(auth.currentUser, {
@@ -64,7 +65,7 @@ function TrusteeRegister() {
       //     alert(errorMessage);
       //     // ..
       //   });
-      console.log("Successfully registered...");
+      
     }
   };
   const handleFirstName = (e) => {
@@ -103,7 +104,9 @@ function TrusteeRegister() {
 
   return (
     <>
+    
       <div className="relative min-w-full h-screen mx-auto overflow-hidden object-cover">
+       
         <div className="h-screen flex relative">
           <img src={Register} alt="Donation" className="bg-black min-w-full" />
           <div className="absolute bg-black top-0 right-0 w-full h-full bg-opacity-70"></div>

@@ -1,16 +1,18 @@
-import React , {useState} from 'react'
+import React, { useContext, useState } from "react";
 import Project from "./Projects/Project";
 import Aboutus from "./About/Aboutus";
 import Welfare from "./Welfare/Welfare";
 import Donate from "./Donate/Donate";
 import Certificate from "./Certificate/Certificate";
 import Banner from "./Banner/Banner";
-import Header from '../Header/Header';
-import Footer from '../Footer/Footer';
+import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
 import ListedDonationPage from "../../Pages/ListedDonationpage/ListedDonationPage";
+import { HashLoader } from "react-spinners";
+import LoadContext from "../../Context/LoadingAnimation/LoadingContext";
 const Home = () => {
   const [color, setColor] = useState("white");
-
+  const {homeLoad} = useContext(LoadContext);
   return (
     <>
       <div className="relative overflow-x-hidden">
@@ -35,11 +37,13 @@ const Home = () => {
         <div>
           <Certificate />
         </div>
-        
+        {homeLoad&&<div className=" inset-0 bg-opacity-65 w-full h-full fixed flex justify-center items-center bg-black">
+          <HashLoader color="#eb9126" />
+        </div>}
         <Footer />
       </div>
     </>
   );
-}
+};
 
-export default Home
+export default Home;

@@ -1,11 +1,27 @@
-import React, { useState, useEffect } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import NewsComponents from "./NewsComponents";
-const NewsandUpdates = () => {
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../../Components/Firebase/Firebase";
+import EditNews from "./Pop-Up/EditNews";
+import DataContext from "../../../Context/FetchData/DataContext";
+const NewsandUpdates = ({ openEditNewsModal, closeEditNewsModal }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [deviceType, setDeviceType] = useState("");
+  // const [data, setData] = useState();
+
+  const context = useContext(DataContext);
+  const { newsData, newsDataRetrival } = context;
+  useEffect(() => {
+    handleData();
+  }, [newsData?.id]);
+
+  const handleData =  () => {
+    console.log('called')
+     newsDataRetrival();
+    // setData(newsData);
+    console.log( ' data  '+newsData);
+    console.log(newsData?.id);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -43,12 +59,21 @@ const NewsandUpdates = () => {
   };
   return (
     <div>
-      <div className=" max-h-screen h-screen overflow-y-scroll   ">
-        
-          {[...Array(9)].map((_, index) => (
-            <NewsComponents upcoming={false} key={index} className="hover:scale-110" />
-          ))}
-       
+      <div className=" max-h-screen overflow-y-scroll   ">
+        {newsData?.length === 0 ? (
+          <p>No data to display</p>
+        ) : (
+          [...Array(newsData?.length)].map((_, index) => (
+            <NewsComponents
+              upcoming={true}
+              data={newsData[index]}
+              openEditNewsModal={openEditNewsModal}
+              closeEditNewsModal={closeEditNewsModal}
+              key={index}
+              className="hover:scale-110"
+            />
+          ))
+        )}
       </div>
     </div>
   );

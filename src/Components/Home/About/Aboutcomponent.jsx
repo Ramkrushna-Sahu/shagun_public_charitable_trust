@@ -7,7 +7,7 @@ const Aboutcomponent = ({ imgSrc, textContent, flexDirection }) => {
         flexDirection === "right"
           ? "flex-col  md:flex-row xl:flex-row "
           : "flex-col md:flex-row-reverse xl:flex-row-reverse"
-      }  justify-center items-center gap-12 w-full py-5 px-6 xl:px-10`}
+      }  justify-center items-center gap-12 w-full py-2 px-6 xl:px-10`}
     >
       <div className="left w-[98%] md:w-96 xl:w-96 overflow-hidden rounded-md">
         <img
