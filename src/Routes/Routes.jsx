@@ -22,12 +22,17 @@ const ProjectRoutes = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="*" element={<PageNotFound />} />
-
+          {/* <Route path="/listedDontionPage" element={<ListedDonationPage />} />
+          <Route path="/donation" element={<Donation />} /> */}
+          {/* <Route path="/login" element={<Login />} /> */}
+          {/* <Route path="/register" element={<SignUp />} /> */}
           <Route path="/trusteeRegister" element={<TrusteeRegister />} />
           <Route path="/trusteeMember" element={<PROUD_TRUSTEES_PAGE />} />
+          {/* <Route path="/futureprojects" element={<FutureProjects />} /> */}
           <Route path="/newAndUpdates" element={<NewsAndUpdatesPage />} />
           <Route path="/certificate" element={<CertificateFrame />} />
           <Route path="/edit" element={<AdminEditPage />} />
+          {/* <Route path="/dekstop" element={<Dekstop />} /> */}
           <Route path="/access-denied" element={<AccessDenied />} />
         </Routes>
       </Router>
