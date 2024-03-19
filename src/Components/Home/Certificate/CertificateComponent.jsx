@@ -13,7 +13,13 @@ const CertificateComponent = ({
     const imageUrl = data?.imageUrl;
     window.open(imageUrl, "_blank");
   };
-
+  const limitCharacters = (str, maxLength) => {
+    if (str.length > maxLength) {
+      return str.substring(0, maxLength) + "...";
+    } else {
+      return str;
+    }
+  };
 
   return (
     <div className="my-10 mx-auto w-[90%] md:w-[85%] xl:w-[90%] rounded-lg shadow-xl relative group bg-white bg-opacity-70 h-fit transform transition-transform hover:scale-105 overflow-hidden duration-1000">
@@ -33,11 +39,11 @@ const CertificateComponent = ({
             <BsBoxArrowInUpRight />
           </div>
         </div>
-        <p className="font-bold font-roboto text-base md:text-2xl xl:text-2xl -z-10">
+        <p className="font-bold font-roboto text-base md:text-2xl xl:text-2xl -z-10 truncate">
           {data?.title}
         </p>
         <p className="font-roboto text-xs md:text-base xl:text-base py-4">
-          {data?.description}
+          {limitCharacters((data?.description),100)}
         </p>
       </div>
     </div>

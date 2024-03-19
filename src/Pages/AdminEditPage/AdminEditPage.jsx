@@ -17,15 +17,18 @@ import Trustee from "./Trustees/Trustee";
 import AddTrustee from "./Trustees/pop-up/AddTrustee";
 import EditTrustee from "./Trustees/pop-up/EditTrustee";
 import { useNavigate } from "react-router-dom";
-const AdminEditPage = () => { const navigate = useNavigate();
-  const handlePasswordPrompt = () => {
+import EditCertificateDetails from "./SendCertificate/EditCertificateDetails";
+const AdminEditPage = () => {
+  const navigate = useNavigate();
 
-   setAuthLoad(true);
+  const handlePasswordPrompt = () => {
+    setAuthLoad(true);
     const enteredPassword = prompt("Please enter your password:");
-    if (enteredPassword !== "Shagun@2024") {
-     navigate("/access-denied");
-     setAuthLoad(true);
-    }else{
+
+    if (enteredPassword?.trim() !== process.env.REACT_APP_PASSWORD) {
+      navigate("/access-denied");
+      setAuthLoad(true);
+    } else {
       setAuthLoad(false);
     }
   };
@@ -43,6 +46,8 @@ const AdminEditPage = () => { const navigate = useNavigate();
   const [isEditCertificateModalOpen, setEditCertificateModalOpen] =
     useState(false);
   const [isEditTruteeModalOpen, setEditTruteeModalOpen] = useState(false);
+  const [isEditCertificateDetailsModalOpen, setEditCertificateDetailsModalOpen] =
+    useState(false);
 
   const [TrusteeData, setTruteeData] = useState();
   const [ProjectData, setProjectData] = useState();
@@ -51,7 +56,7 @@ const AdminEditPage = () => { const navigate = useNavigate();
 
   const { isloading, openSetLoading, closeSetLoading } =
     useContext(LoadContext);
-const [authload,setAuthLoad] = useState(true);
+  const [authload, setAuthLoad] = useState(false);
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
   const openNewsModal = () => setNewsModalOpen(true);
@@ -60,6 +65,8 @@ const [authload,setAuthLoad] = useState(true);
   const closeCertificateModal = () => setCertificateModalOpen(false);
   const openTrusteeModal = () => setTrusteeModalOpen(true);
   const closeTrusteeModal = () => setTrusteeModalOpen(false);
+  const openEditCertificateDetailModal =()=> setEditCertificateDetailsModalOpen(true)
+  const closeEditCertificateDetailModal =()=> setEditCertificateDetailsModalOpen(false)
 
   const openEditProjectModal = (data) => {
     console.log("openEditProjectModal b", isEditProjectModalOpen);
@@ -219,6 +226,23 @@ const [authload,setAuthLoad] = useState(true);
             openEditTrusteeModal={openEditTrusteeModal}
             closeEditTrusteeModal={closeEditTrusteeModal}
           />
+        </div>
+      </div>
+      <div className=" bg-slate-200 rounded-xl mx-10 mt-4 mb-10">
+        <div className="flex font-roboto justify-between px-6 pt-5  relative w-full">
+          <p className="text-2xl font-bold text-gray-500">Send Certificate</p>{" "}
+          <span className="absolute left-[13rem] w-auto text-white text-xs bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 px-1 py-0.5 rounded-lg">
+            Admin Mode
+          </span>
+         
+        </div>
+
+        <div className=" flex justify-center px-4 py-2">
+          <span className=" h-0.5 w-[99%] bg-gray-300"></span>
+        </div>
+
+        <div className="w-full z-0">
+          <EditCertificateDetails/>
         </div>
       </div>
       {isloading && (

@@ -55,7 +55,7 @@ openHome();
     <div className="xl:min-h-screen h-full py-10">
       <div className="flex flex-col items-center gap-10 font-roboto text-3xl   font-bold pt-16">
         <p className="text-center">Highlighting Our Achievements</p>
-        <p className="text-sm px-4 xl:text-lg font-medium font-roboto text-center">
+        <p className="text-sm px-16 xl:text-lg font-medium font-roboto text-center">
           Step into the world of our charitable trust's achievements through our
           Certification Showcase. Each certificate is a testament to our
           commitment to making a positive impact. Join us in celebrating the
@@ -71,13 +71,13 @@ openHome();
           {...events}
           ref={ref}
         >
-          {/* <Slider {...settings} className=""> */}
+
           {certificateData.map((data, index) => (
             <div key={index} className="inline-block mr-4">
             <CertificateComponent key={index} data={data}/>
             </div>
           ))}
-          {/* </Slider> */}
+
         </div>
       </div>
     </div>

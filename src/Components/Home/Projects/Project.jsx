@@ -54,7 +54,7 @@ function Project() {
       closeHome();
     
   }, []);
-  const ref = useRef(); // We will use React useRef hook to reference the wrapping div:
+  const ref = useRef(); 
   const { events } = useDraggable(ref);
 
   return (
@@ -71,7 +71,7 @@ function Project() {
         >
           {/* <Slider {...settings} className=""> */}
           {projectData.map((data, index) => (
-            <div key={index} className="inline-block mr-4">
+            <div key={index} className="flex flex-row mr-4">
               <ProjectComponent
                 key={index}
                 className="hover:scale-110"
